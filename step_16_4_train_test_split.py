@@ -1,37 +1,47 @@
-
 import pandas as pd
-import numpy as np
 from pathlib import Path
 
-# Dataset paths
+# Input and output paths
 data_path = Path("data/raw/ml-25m/ratings.csv")
 output_path = Path("data/processed")
-
 output_path.mkdir(parents=True, exist_ok=True)
 
-train_file = output_path / "ratings_train.csv"
-test_file = output_path / "ratings_test.csv"
+# Unix timestamp for 2016-06-25 06:49:57 UTC
+cutoff_timestamp = 1466837397
 
-# Reproducible random splitting
-rng = np.random.default_rng(42)
+# Separate output files: preserve the original random split
+train_file = output_path / "ratings_train_temporal.csv"
+test_file = output_path / "ratings_test_temporal.csv"
+
+# Remove previous temporal outputs if they exist
+train_file.unlink(missing_ok=True)
+test_file.unlink(missing_ok=True)
 
 train_count = 0
 test_count = 0
 
-# Remove previous outputs if they exist
-train_file.unlink(missing_ok=True)
-test_file.unlink(missing_ok=True)
+print("Creating chronological train/test split...")
 
-# Process ratings in chunks
-for chunk in pd.read_csv(data_path, chunksize=1_000_000):
+for chunk in pd.read_csv(
+    data_path,
+    chunksize=1_000_000,
+    dtype={
+        "userId": "int32",
+        "movieId": "int32",
+        "rating": "float32",
+        "timestamp": "int64"
+    }
+):
+    # Earlier interactions go to training
+    train_data = chunk[
+        chunk["timestamp"] <= cutoff_timestamp
+    ]
 
-    # Randomly assign 80% to training
-    mask = rng.random(len(chunk)) < 0.8
+    # Later interactions go to testing
+    test_data = chunk[
+        chunk["timestamp"] > cutoff_timestamp
+    ]
 
-    train_data = chunk[mask]
-    test_data = chunk[~mask]
-
-    # Save training data
     train_data.to_csv(
         train_file,
         mode="a",
@@ -39,7 +49,6 @@ for chunk in pd.read_csv(data_path, chunksize=1_000_000):
         index=False
     )
 
-    # Save testing data
     test_data.to_csv(
         test_file,
         mode="a",
@@ -51,12 +60,12 @@ for chunk in pd.read_csv(data_path, chunksize=1_000_000):
     test_count += len(test_data)
 
     print(
-        f"Processed: {train_count + test_count:,} ratings"
+        f"Processed: {train_count + test_count:,} | "
+        f"Train: {train_count:,} | Test: {test_count:,}"
     )
 
-print("\n===== TRAIN TEST SPLIT RESULTS =====")
+print("\n===== TEMPORAL SPLIT COMPLETE =====")
 print("Training ratings:", f"{train_count:,}")
 print("Testing ratings:", f"{test_count:,}")
 print("Total ratings:", f"{train_count + test_count:,}")
-
-print("\nDataset splitting completed successfully!")
+print("Cutoff: 2016-06-25 06:49:57 UTC")

@@ -1,9 +1,9 @@
-
 import numpy as np
 import pandas as pd
 
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from scipy.sparse import load_npz
 
 # Project paths
@@ -17,7 +17,13 @@ app = FastAPI(
     description="Personalized movie recommendations using SVD",
     version="1.0.0"
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Load model artifacts
 print("Loading recommendation model...")
 

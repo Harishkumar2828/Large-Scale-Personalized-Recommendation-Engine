@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation Engine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>Movie Recommendation Engine</h1>
+        <p>Discover movies tailored to your preferences</p>
+    </header>
+
+    <main class="container">
+
+        <section class="search-section">
+            <h2>Find Your Recommendations</h2>
+
+            <div class="input-group">
+                <input
+                    type="number"
+                    id="userId"
+                    placeholder="Enter User ID (e.g. 1)"
+                    min="1"
+                >
+
+                <button id="recommendBtn">
+                    Get Recommendations
+                </button>
+            </div>
+
+            <p id="message"></p>
+        </section>
+
+        <section class="results-section">
+            <h2>Your Recommended Movies</h2>
+
+            <div id="recommendations" class="movie-grid">
+                <p class="placeholder">
+                    Enter a User ID to discover movies.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Powered by Truncated SVD Recommendation Model</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

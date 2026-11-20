@@ -27,3 +27,11 @@ Thumbs.db
 
 # Logs
 *.log
+# Exclude all generated model artifacts
+models/
+
+# Temporary file inventories and archives
+important_files.txt
+project_python_files.txt
+python_files.txt
+step_16_10_evaluate_recommendations.zip
